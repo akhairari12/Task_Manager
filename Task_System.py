@@ -27,6 +27,25 @@ class Completions:
             "response": "Fast scheduling ensures timely task completion."
         }
 
+# agents/scheduling_agent.py
+class SchedulingAgent:
+    def schedule(self, details):
+        # Simulate scheduling logic
+        return f"Scheduled task: {details}"
+    
+    # agents/email_agent.py
+class EmailAgent:
+    def process_email(self, email):
+        # Simulate email processing logic
+        return f"Processed email: {email}"
+    
+# agents/data_analysis_agent.py
+class DataAnalysisAgent:
+    def analyze(self, data):
+        # Simulate data analysis logic
+        return f"Analyzed data: {data}"
+
+
 
 class ChatClient:
     def __init__(self, api_key):
