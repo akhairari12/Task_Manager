@@ -2,6 +2,7 @@ from cerebras.cloud.sdk import Cerebras
 from dotenv import load_dotenv
 
 import os
+import numpy as np
 import openai
 import traceback
 #print("OpenAI package works!")
@@ -27,23 +28,50 @@ class Completions:
             "response": "Fast scheduling ensures timely task completion."
         }
 
-# agents/scheduling_agent.py
-class SchedulingAgent:
-    def schedule(self, details):
-        # Simulate scheduling logic
-        return f"Scheduled task: {details}"
-    
-    # agents/email_agent.py
-class EmailAgent:
-    def process_email(self, email):
-        # Simulate email processing logic
-        return f"Processed email: {email}"
-    
-# agents/data_analysis_agent.py
-class DataAnalysisAgent:
-    def analyze(self, data):
-        # Simulate data analysis logic
-        return f"Analyzed data: {data}"
+# orchestrator.py
+from agents.scheduling_agent import SchedulingAgent
+from agents.email_agent import EmailHandlerAgent
+from agents.data_analysis_agent import DataAnalysisAgent
+
+
+from langchain.llms import openai
+from langchain.prompts import PromptTemplate
+from flask import Flask, request, jsonify
+from orchestrator.orchestrator import Orchestrator
+
+from langchain_interaction.langchain_interaction import LangChainInteraction
+
+#class LangChainInteraction:
+    #def __init__(self, api_key):
+    #    self.llm = OpenAI(api_key=api_key)
+
+  #  def classify_task(self, user_input):
+        # Define the prompt template for task classification
+   #     prompt_template = PromptTemplate(
+   #         template="Classify the following task: {task}",
+    #        input_variables=["task"]
+    #    )
+    #    response = self.llm(prompt_template.render(task=user_input))
+    #    return response.strip().lower()
+
+app = Flask("Edith")
+
+orchestrator=Orchestrator()
+langchain_interaction = LangChainInteraction(api_key = os.environ.get("API_KEY"))
+
+@app.route("/task", methods=["POST"])
+def handle_task():
+    user_input = request.json.get("input")
+    task_type = langchain_interaction.classify_task(user_input)
+    response = orchestrator.delegate_task(task_type, user_input)
+    ai_response = langchain_interaction.generate_response(task_type, user_input)
+
+    return jsonify({"task_type": task_type,
+        "agent_response": response,
+        "ai_response": ai_response})
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
 
